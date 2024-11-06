@@ -11,7 +11,6 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 
 app.config['SECRET_KEY'] = 'your_secret_key'
 # เปลี่ยนการเชื่อมต่อฐานข้อมูลเป็น MySQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://bookie:72nh3khh@bookie.mysql.pythonanywhere-services.com/bookie$web'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
