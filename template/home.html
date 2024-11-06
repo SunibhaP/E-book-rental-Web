@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Home</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <div class="left-menu">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('library') }}">Library</a></li>
+                <li><a href="{{ url_for('about') }}">About Us</a></li>
+            </div>
+            <div class="dropdown">
+                <li><a href="#">User</a>
+                    <div class="dropdown-content">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('cart') }}">Cart</a>
+                            <a href="{{ url_for('my_shelf') }}">My Shelf</a>
+                            <a href="{{ url_for('my_own_books') }}">My Own Book</a>
+                            <a href="{{ url_for('upload_book') }}">Upload Book</a>
+                            <a href="{{ url_for('my_reviews') }}">My Reviews</a>
+                            <a href="{{ url_for('logout') }}">Logout</a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}">Login</a>
+                            <a href="{{ url_for('register') }}">Sign Up</a>
+                        {% endif %}
+                    </div>
+                </li>
+            </div>
+        </ul>
+    </nav>
+
+    <header>
+        <h1>Welcome to the E-Book Rental</h1>
+        <p>Discover and rent your favorite books!</p>
+        <form action="{{ url_for('library') }}" method="POST" style="width: 200px; box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);">
+            <button type="submit" class="form-button">Rent Now</button>
+        </form>
+    </header>
+
+    <h1>Recommended</h1>
+    <section>
+        <div class="book-list">
+            {% for book in recommended_books %}
+                <div class="book">
+                    {% if book.cover_image %}
+                        <img src="data:{{ book.cover_image_mime_type }};base64,{{ book.cover_image|b64encode }}" alt="Cover Image">
+                    {% endif %}
+                    <h3>{{ book.title }}</h3>
+                    <p>{{ book.author }}</p>
+                    <p>Rating: {{ book.rating }} / 5</p>
+                    <p>฿{{ book.price_per_day }}/DAY</p>
+                    <a href="{{ url_for('book_detail', book_id=book.id) }}">View Details</a>
+                </div>
+            {% else %}
+                <p>No books available.</p>  <!-- แสดงข้อความถ้าไม่มีหนังสือ -->
+            {% endfor %}
+        </div>
+
+        <a href="{{ url_for('recommended') }}" class="btn">See More</a>
+
+    </section>
+
+    <h1>New Releases</h1>
+    <section>
+        <div class="book-list">
+            {% for book in new_release_books %}
+                <div class="book">
+                    {% if book.cover_image %}
+                        <img src="data:{{ book.cover_image_mime_type }};base64,{{ book.cover_image|b64encode }}" alt="Cover Image">
+                    {% endif %}
+                    <h3>{{ book.title }}</h3>
+                    <p>{{ book.author }}</p>
+                    <p>Rating: {{ book.rating }} / 5</p>
+                    <p>฿{{ book.price_per_day }}/DAY</p>
+                    <a href="{{ url_for('book_detail', book_id=book.id) }}">View Details</a>
+                </div>
+            {% else %}
+                <p>No books available.</p>  <!-- แสดงข้อความถ้าไม่มีหนังสือ -->
+            {% endfor %}
+        </div>
+
+        <a href="{{ url_for('new_releases') }}" class="btn">See More</a>
+
+    </section>
+</body>
+</html>
+
+
+
+
+
