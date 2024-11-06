@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Library</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <div class="left-menu">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('library') }}">Library</a></li>
+                <li><a href="{{ url_for('about') }}">About Us</a></li>
+            </div>
+            <div class="dropdown">
+                <li><a href="#">User</a>
+                    <div class="dropdown-content">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('cart') }}">Cart</a>
+                            <a href="{{ url_for('my_shelf') }}">My Shelf</a>
+                            <a href="{{ url_for('my_own_books') }}">My Own Book</a>
+                            <a href="{{ url_for('upload_book') }}">Upload Book</a>
+                            <a href="{{ url_for('my_reviews') }}">My Reviews</a>
+                            <a href="{{ url_for('logout') }}">Logout</a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}">Login</a>
+                            <a href="{{ url_for('register') }}">Sign Up</a>
+                        {% endif %}
+                    </div>
+                </li>
+            </div>
+        </ul>
+    </nav>
+
+     <h1>Recommended Books</h1>
+    <form action="{{ url_for('recommended') }}" method="get" class="search-form">
+        <input type="text" name="search" placeholder="Search Recommended" value="{{ request.args.get('search', '') }}" class="search-input">
+        <button type="submit" class="btn">Search</button>
+    </form>
+
+    <div>
+        <h2>Top Rated Books</h2>
+        <div class="book-list">
+            {% for book in books %}
+                <div class="book">
+                    {% if book.cover_image %}
+                        <img src="data:{{ book.cover_image_mime_type }};base64,{{ book.cover_image|b64encode }}" alt="Cover Image">
+                    {% else %}
+                        <p>No cover image available</p>
+                    {% endif %}
+                    <h3>{{ book.title }}</h3>
+                    <p>{{ book.author }}</p>
+                    <p>Rating: {{ book.rating }} / 5</p>
+                    <p>฿{{ book.price_per_day }}/DAY</p>
+                    <a href="{{ url_for('book_detail', book_id=book.id) }}">View Details</a>
+                </div>
+            {% else %}
+                <p>No recommended books available.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

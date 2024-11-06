@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Your Cart</title>
+    <script>
+        function calculateTotalPrice() {
+            var pricePerDay = parseFloat(document.getElementById('pricePerDay').value);
+            var rentalDays = parseInt(document.getElementById('rentalDays').value);
+            if (!isNaN(pricePerDay) && !isNaN(rentalDays)) {
+                var totalPrice = pricePerDay * rentalDays;
+                document.getElementById('totalPrice').innerText = 'Total Price: ฿' + totalPrice.toFixed(2);
+            } else {
+                document.getElementById('totalPrice').innerText = '';
+            }
+        }
+    </script>
+</head>
+<body>
+    <nav>
+        <ul>
+            <div class="left-menu">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('library') }}">Library</a></li>
+                <li><a href="{{ url_for('about') }}">About Us</a></li>
+            </div>
+            <div class="dropdown">
+                <li><a href="#">User</a>
+                    <div class="dropdown-content">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('cart') }}">Cart</a>
+                            <a href="{{ url_for('my_shelf') }}">My Shelf</a>
+                            <a href="{{ url_for('my_own_books') }}">My Own Book</a>
+                            <a href="{{ url_for('upload_book') }}">Upload Book</a>
+                            <a href="{{ url_for('my_reviews') }}">My Reviews</a>
+                            <a href="{{ url_for('logout') }}">Logout</a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}">Login</a>
+                            <a href="{{ url_for('register') }}">Sign Up</a>
+                        {% endif %}
+                    </div>
+                </li>
+            </div>
+        </ul>
+    </nav>
+
+<h1>Your Cart</h1>
+{% if cart_items %}
+    <form action="{{ url_for('cart') }}" method="POST">
+        {{ form.hidden_tag() }}
+        <table>
+            <thead>
+                <tr>
+                    <th>Cover</th>
+                    <th>Book Title</th>
+                    <th>Price/Day</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>
+                        {% if item.book.cover_image %}
+                            <img src="data:{{ item.book.cover_image_mime_type }};base64,{{ item.book.cover_image|b64encode }}" alt="Cover Image" style="width: 50px; height: auto;">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='default_cover.jpg') }}" alt="Default Cover" style="width: 100px; height: auto;">
+                        {% endif %}
+                    </td>
+                    <td>{{ item.book.title }}</td>
+                    <td>฿{{ item.book.price_per_day }}/DAY</td>
+                    <td>
+                        <button type="submit" name="remove" formaction="{{ url_for('remove_from_cart', book_id=item.book.id) }}" class="btn">Remove</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p>
+        {{ form.book_id.label }} {{ form.book_id() }}
+
+        {{ form.rental_days.label }}
+        <input id="rentalDays" name="rental_days" type="number" min="1" value="1" onchange="calculateTotalPrice()">
+
+        <!-- เพิ่ม hidden input เพื่อเก็บ price_per_day สำหรับการคำนวณ -->
+        <input id="pricePerDay" type="hidden" value="{{ cart_items[0].book.price_per_day }}">
+
+        <div id="totalPrice"></div>
+        <button type="submit" class="btn">Confirm Rental</button>
+        </p>
+        </form>
+{% else %}
+    <p>Your cart is empty.</p>
+{% endif %}
+
+
+</body>
+</html>
+
+
+
+
+

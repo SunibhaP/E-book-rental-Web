@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>My Shelf</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <div class="left-menu">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('library') }}">Library</a></li>
+                <li><a href="{{ url_for('about') }}">About Us</a></li>
+            </div>
+            <div class="dropdown">
+                <li><a href="#">User</a>
+                    <div class="dropdown-content">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('cart') }}">Cart</a>
+                            <a href="{{ url_for('my_shelf') }}">My Shelf</a>
+                            <a href="{{ url_for('my_own_books') }}">My Own Book</a>
+                            <a href="{{ url_for('upload_book') }}">Upload Book</a>
+                            <a href="{{ url_for('my_reviews') }}">My Reviews</a>
+                            <a href="{{ url_for('logout') }}">Logout</a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}">Login</a>
+                            <a href="{{ url_for('register') }}">Sign Up</a>
+                        {% endif %}
+                    </div>
+                </li>
+            </div>
+        </ul>
+    </nav>
+
+    <h1>My Shelf</h1>
+    {% if rented_books %}
+    <form action="{{ url_for('clear_expired') }}" method="POST" style="width: 300px; box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);">
+        <button type="submit" class="form-button">Clear Expired Rentals</button>
+    </form>
+    <div class="book-list">
+        {% for rental in rented_books %}
+            <div class="book">
+                {% if rental.book.cover_image %}
+                    <img src="data:{{ rental.book.cover_image_mime_type }};base64,{{ rental.book.cover_image|b64encode }}" alt="Cover Image">
+                {% endif %}
+                <h2>{{ rental.book.title }}</h2>
+                <p>Rental for: {{ rental.rental_days }} day</p>
+                <p>Start Date: {{ rental.rented_on.strftime('%Y-%m-%d') }}</p>
+                <p>End Date: {{ rental.end_date.strftime('%Y-%m-%d') }}</p>
+                {% if rental.end_date >= current_date %}
+                    <a href="{{ url_for('view_txt', filename=rental.book.txt_path.split('/')[-1]) }}">Read</a>
+                {% else %}
+                    <span style="color: red;">Expired</span>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>You have no rented books.</p>
+{% endif %}
+
+</body>
+</html>

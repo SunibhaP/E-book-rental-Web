@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Book Detail</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <div class="left-menu">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('library') }}">Library</a></li>
+                <li><a href="{{ url_for('about') }}">About Us</a></li>
+            </div>
+            <div class="dropdown">
+                <li><a href="#">User</a>
+                    <div class="dropdown-content">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('cart') }}">Cart</a>
+                            <a href="{{ url_for('my_shelf') }}">My Shelf</a>
+                            <a href="{{ url_for('my_own_books') }}">My Own Book</a>
+                            <a href="{{ url_for('upload_book') }}">Upload Book</a>
+                            <a href="{{ url_for('my_reviews') }}">My Reviews</a>
+                            <a href="{{ url_for('logout') }}">Logout</a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}">Login</a>
+                            <a href="{{ url_for('register') }}">Sign Up</a>
+                        {% endif %}
+                    </div>
+                </li>
+            </div>
+        </ul>
+    </nav>
+
+    <!-- แสดงรูปปกหนังสือ -->
+    <h1>{{ book.title }}</h1>
+    <div class="container">
+        <div class="left">
+        {% if book.cover_image %}
+            <img src="data:{{ book.cover_image_mime_type }};base64,{{ book.cover_image|b64encode }}" alt="Cover Image" style="width: 400px; height: auto;">
+        {% endif %}
+        </div>
+        <div class="right">
+            <p><strong>Author:</strong> {{ book.author }}</p>
+            <p><strong>Rating:</strong> {{ book.rating }} / 5</p>
+            <p><strong>Tags:</strong>
+                {% for tag in book.tags %}
+                    <span class="tag">{{ tag.name }}</span>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+            <p><strong>Price/Day: </strong> ฿{{ book.price_per_day }}</p>
+
+            <div class="button-container">
+            <form action="{{ url_for('add_to_cart', book_id=book.id) }}" method="POST">
+                <button type="submit" class="form-button">Add to Cart</button>
+            </form>
+            </div>
+            <p>{{ book.description }}</p>
+        </div>
+    </div>
+
+    {% if current_user.is_authenticated %}
+<h2>Write Review</h2>
+<form method="POST" action="{{ url_for('submit_review', book_id=book.id) }}">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.review_text(class="review-text form-input") }} <!-- เพิ่ม class สำหรับกล่องรีวิว -->
+        {% for error in form.review_text.errors %}
+            <span class="error">{{ error }}</span>
+        {% endfor %}
+    </div>
+    <div class="form-group">
+        <label for="rating">Rating:</label>
+        {{ form.rating(class="form-input") }}
+        {% for error in form.rating.errors %}
+            <span class="error">{{ error }}</span>
+        {% endfor %}
+    </div>
+    <div class="form-group">
+        {{ form.submit(class="form-button") }}
+    </div>
+</form>
+    {% endif %}
+
+    <h2>All Reviews</h2>
+    <div class="reviews-container">
+    {% for review in book.reviews %}
+    <div class="review-box">
+        <h3>{{ review.user.username }}</h3>
+        <p>{{ review.review_text }}</p>
+        <div class="rating">Rating: {{ review.rating }}</div> <!-- แสดงเรตติ้ง -->
+    </div>
+    {% else %}
+    <p>No reviews found.</p>
+    {% endfor %}
+</body>
+</html>
+
+
+
